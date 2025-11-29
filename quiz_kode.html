@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aplikasi Quiz Sederhana</title>
+<style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f2f2f2; }
+    .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px #ccc; }
+    button { padding: 10px 20px; margin-top: 10px; border: none; background: #007bff; color: white; border-radius: 5px; }
+    button:hover { background: #0056b3; }
+    input, textarea { width: 100%; padding: 10px; margin: 5px 0 10px; border: 1px solid #ccc; border-radius: 5px; }
+    .hidden { display: none; }
+    .question-box { margin-bottom: 20px; padding: 15px; background: #f9f9f9; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Aplikasi Quiz</h2>
+
+    <div id="setup">
+        <h3>Tambah Soal</h3>
+        <textarea id="question" placeholder="Masukkan pertanyaan..."></textarea>
+        <input id="optA" placeholder="Jawaban A">
+        <input id="optB" placeholder="Jawaban B">
+        <input id="optC" placeholder="Jawaban C (opsional)">
+        <input id="optD" placeholder="Jawaban D (opsional)">
+        <input id="answer" placeholder="Jawaban benar (A/B/C/D)">
+        <button onclick="addQuestion()">Tambah Soal</button>
+
+        <h3>Daftar Soal</h3>
+        <div id="questionList"></div>
+
+        <button onclick="startQuiz()">Mulai Kuis</button>
+    </div>
+
+    <div id="quiz" class="hidden">
+        <h3 id="qText"></h3>
+        <div id="options"></div>
+        <button onclick="nextQuestion()">Selanjutnya</button>
+    </div>
+
+    <div id="result" class="hidden">
+        <h2>Hasil Kuis</h2>
+        <p id="scoreText"></p>
+        <button onclick="restart()">Ulangi</button>
+    </div>
+</div>
+
+<script>
+let questions = [];
+let current = 0;
+let score = 0;
+
+function addQuestion() {
+    let q = document.getElementById('question').value;
+    let a = document.getElementById('optA').value;
+    let b = document.getElementById('optB').value;
+    let c = document.getElementById('optC').value;
+    let d = document.getElementById('optD').value;
+    let ans = document.getElementById('answer').value.toUpperCase();
+
+    if (!q || !a || !b || !ans) return alert("Minimal isi pertanyaan, A, B, dan jawaban!");
+
+    questions.push({ q, a, b, c, d, ans });
+    updateList();
+}
+
+function updateList() {
+    let box = document.getElementById('questionList');
+    box.innerHTML = "";
+    questions.forEach((s, i) => {
+        box.innerHTML += `<div class='question-box'><b>${i+1}. ${s.q}</b><br>A: ${s.a}<br>B: ${s.b}${s.c ? "<br>C: "+s.c : ""}${s.d ? "<br>D: "+s.d : ""}<br><b>Jawaban: ${s.ans}</b></div>`;
+    });
+}
+
+function startQuiz() {
+    if (questions.length === 0) return alert("Tambahkan soal dulu!");
+    document.getElementById('setup').classList.add('hidden');
+    document.getElementById('quiz').classList.remove('hidden');
+    current = 0;
+    score = 0;
+    loadQuestion();
+}
+
+function loadQuestion() {
+    let q = questions[current];
+    document.getElementById('qText').innerText = q.q;
+
+    let opts = "";
+    if (q.a) opts += `<button onclick='check("A")'>A. ${q.a}</button><br>`;
+    if (q.b) opts += `<button onclick='check("B")'>B. ${q.b}</button><br>`;
+    if (q.c) opts += `<button onclick='check("C")'>C. ${q.c}</button><br>`;
+    if (q.d) opts += `<button onclick='check("D")'>D. ${q.d}</button><br>`;
+
+    document.getElementById('options').innerHTML = opts;
+}
+
+function check(jawaban) {
+    if (jawaban === questions[current].ans) score++;
+    nextQuestion();
+}
+
+function nextQuestion() {
+    current++;
+    if (current >= questions.length) {
+        document.getElementById('quiz').classList.add('hidden');
+        document.getElementById('result').classList.remove('hidden');
+        document.getElementById('scoreText').innerText = "Skor Anda: " + score + " / " + questions.length;
+    } else {
+        loadQuestion();
+    }
+}
+
+function restart() {
+    document.getElementById('result').classList.add('hidden');
+    document.getElementById('setup').classList.remove('hidden');
+}
+</script>
+
+</body>
+</html>
